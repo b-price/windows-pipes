@@ -12,7 +12,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
-#define BUFFER_SIZE 25
+#include <iostream>
+#define BUFFER_SIZE 40
+using namespace std;
 
 int main(VOID) {
     /** 
@@ -25,8 +27,16 @@ int main(VOID) {
     LPCSTR executablePath = "pipeClient.exe";
 
     /**
-     *  Set up security attributes so child can inherit */
-    SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES),NULL,TRUE};
+     * User is prompted for message to send
+    */
+    cout << "Enter a word to send to child: ";
+    cin >> message;
+
+    /**
+     * Set up security attributes for 
+     * 
+     */
+    SECURITY_ATTRIBUTES sec_atts = {sizeof(SECURITY_ATTRIBUTES),NULL,TRUE};
 
     /** 
      * Memory allocation */
@@ -34,7 +44,7 @@ int main(VOID) {
 
     /** 
      * Create the pipe. Notifies of errors */
-    if (!CreatePipe(&readHandle, &writeHandle, &sa, 0)) {
+    if (!CreatePipe(&readHandle, &writeHandle, &sec_atts, 0)) {
         fprintf(stderr, "Create Pipe Failure");
         return 1;
     }

@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 #include <windows.h>
-#define BUFFER_SIZE 25
+#define BUFFER_SIZE 40
 
 int main(VOID) {
     /** 
