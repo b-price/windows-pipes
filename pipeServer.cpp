@@ -4,56 +4,56 @@
 
 #define BUFFER_SIZE 25
 int main(VOID) {
-    HANDLE ReadHandle, WriteHandle;
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
+    HANDLE readHandle, writeHandle;
+    STARTUPINFO strtInfo;
+    PROCESS_INFORMATION procInfo;
     char message[BUFFER_SIZE] = "Sup?";
     DWORD written;
-    LPCWSTR executablePath = L"pipeClient.exe";
+    LPCSTR executablePath = "pipeClient.exe";
 
     /* set up security attributes allowing pipes to be inherited */
     SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES),NULL,TRUE};
 
     /* allocate memory */
-    ZeroMemory(&pi, sizeof(pi));
+    ZeroMemory(&procInfo, sizeof(procInfo));
 
     /* create the pipe */
-    if (!CreatePipe(&ReadHandle, &WriteHandle, &sa, 0)) {
-        fprintf(stderr, "Create Pipe Failed");
+    if (!CreatePipe(&readHandle, &writeHandle, &sa, 0)) {
+        fprintf(stderr, "Create Pipe Failure");
         return 1;
     }
 
     /* establish the START INFO structure for the child process */
-    GetStartupInfo(&si);
-    si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    GetStartupInfo(&strtInfo);
+    strtInfo.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 
     /* redirect standard input to the read end of the pipe */
-    si.hStdInput = ReadHandle;
-    si.dwFlags = STARTF_USESTDHANDLES;
+    strtInfo.hStdInput = readHandle;
+    strtInfo.dwFlags = STARTF_USESTDHANDLES;
 
     /* don’t allow the child to inherit the write end of pipe */
-    SetHandleInformation(WriteHandle, HANDLE_FLAG_INHERIT, 0);
+    SetHandleInformation(writeHandle, HANDLE_FLAG_INHERIT, 0);
 
     /* create the child process */
     CreateProcess(executablePath, NULL, NULL, NULL,
         TRUE, 
         /* inherit handles */
-        0, NULL, NULL, &si, &pi);
+        0, NULL, NULL, &strtInfo, &procInfo);
 
     /* close the unused end of the pipe */
-    CloseHandle(ReadHandle);
+    CloseHandle(readHandle);
 
     /* the parent writes to the pipe */
-    if (!WriteFile(WriteHandle, message, BUFFER_SIZE, &written, NULL))
+    if (!WriteFile(writeHandle, message, BUFFER_SIZE, &written, NULL))
         fprintf(stderr, "Error writing to pipe.");
 
     /* close the write end of the pipe */
-    CloseHandle(WriteHandle);
+    CloseHandle(writeHandle);
 
     /* wait for the child to exit */
-    WaitForSingleObject(pi.hProcess, INFINITE);
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
+    WaitForSingleObject(procInfo.hProcess, INFINITE);
+    CloseHandle(procInfo.hProcess);
+    CloseHandle(procInfo.hThread);
 
     return 0;
 }
