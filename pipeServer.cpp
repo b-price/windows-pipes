@@ -33,8 +33,7 @@ int main(VOID) {
     cin >> message;
 
     /**
-     * Set up security attributes for 
-     * 
+     * Set up security attributes for CreatePipe parameter
      */
     SECURITY_ATTRIBUTES sec_atts = {sizeof(SECURITY_ATTRIBUTES),NULL,TRUE};
 
